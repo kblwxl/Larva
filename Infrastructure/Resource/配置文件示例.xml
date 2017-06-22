@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <configSections>
+    <section name="aliResourceSection" type="Infrastructure.Resource.AliResourceSection, Infrastructure"/>
+  </configSections>
+  <aliResourceSection endPoint="http://oss-cn-beijing.aliyuncs.com" accessKeyId="XQX4abjjcQOher1H" 
+                      accessKeySecret="sz5xXbkegGerJKuPQCdYaC8C7GId3n" bucketName="bucketguoxin" resourcePrefix="YiYi.Wealth/">
+  </aliResourceSection>
+</configuration>
