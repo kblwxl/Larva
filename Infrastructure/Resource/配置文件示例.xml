@@ -3,7 +3,7 @@
   <configSections>
     <section name="aliResourceSection" type="Infrastructure.Resource.AliResourceSection, Infrastructure"/>
   </configSections>
-  <aliResourceSection endPoint="http://oss-cn-beijing.aliyuncs.com" accessKeyId="XQX4abjjcQOher1H" 
-                      accessKeySecret="sz5xXbkegGerJKuPQCdYaC8C7GId3n" bucketName="bucketguoxin" resourcePrefix="YiYi.Wealth/">
+  <aliResourceSection endPoint="你的阿里云oss地址" accessKeyId="xxx" 
+                      accessKeySecret="xxx" bucketName="xxxbucket" resourcePrefix="xxxPrefix/">
   </aliResourceSection>
 </configuration>
