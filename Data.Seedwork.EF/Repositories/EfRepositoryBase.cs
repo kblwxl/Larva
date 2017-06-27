@@ -1,4 +1,4 @@
-﻿using Infrastructure.Domain;
+using Infrastructure.Domain;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -291,14 +291,11 @@ namespace Data.Seedwork.EF.Repositories
             {
                 OrderCriteria<TEntity> ocs = new OrderCriteria<TEntity>();
                 orderAction(ocs);
-                var parameter = Expression.Parameter(typeof(TEntity), "o");
-
                 for (int i = 0; i < ocs.OrderByFields.Count; i++)
                 {
                     var oc = ocs.OrderByFields[i];
-                    var property = typeof(TEntity).GetProperty(GetEagerLoadingPath(oc.Field));
-                    var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-                    var orderByExp = Expression.Lambda(propertyAccess, parameter);
+                    var orderBody = GetMemberInfo(oc.Field);
+                    var orderExp = Expression.Lambda(orderBody, oc.Field.Parameters.First());
                     string OrderName = "";
                     if (i > 0)
                     {
@@ -306,11 +303,12 @@ namespace Data.Seedwork.EF.Repositories
                     }
                     else
                         OrderName = oc.OrderBy == OrderBy.Desc ? "OrderByDescending" : "OrderBy";
-                    MethodCallExpression resultExp = Expression.Call(typeof(Queryable), OrderName, new Type[] { typeof(TEntity), property.PropertyType }, query.Expression, Expression.Quote(orderByExp));
+                    MethodCallExpression resultExp = Expression.Call(typeof(Queryable), OrderName, new Type[] { typeof(TEntity), orderExp.ReturnType }, query.Expression, Expression.Quote(orderExp));
 
                     query = query.Provider.CreateQuery<TEntity>(resultExp);
+
                 }
-                    
+
                 var result= query.ToList();
                 for(int i=0;i<result.Count;i++)
                 {
@@ -380,7 +378,7 @@ namespace Data.Seedwork.EF.Repositories
             Context.Configuration.AutoDetectChangesEnabled = true;
             return retValue;
         }
-
+        
         public override PagedResult<TEntity> GetPaged(int pageNumber, int pageSize, Expression<Func<TEntity, bool>> predicate, OrderAction<TEntity> orderAction, params Expression<Func<TEntity, dynamic>>[] eagerLoadingProperties)
         {
             Context.Configuration.AutoDetectChangesEnabled = false;
@@ -404,14 +402,11 @@ namespace Data.Seedwork.EF.Repositories
             }
             OrderCriteria<TEntity> ocs = new OrderCriteria<TEntity>();
             orderAction(ocs);
-            var parameter = Expression.Parameter(typeof(TEntity), "o");
-            
             for(int i=0;i<ocs.OrderByFields.Count;i++)
             {
                 var oc = ocs.OrderByFields[i];
-                var property = typeof(TEntity).GetProperty(GetEagerLoadingPath(oc.Field));
-                var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-                var orderByExp = Expression.Lambda(propertyAccess, parameter);
+                var orderBody = GetMemberInfo(oc.Field);
+                var orderExp = Expression.Lambda(orderBody, oc.Field.Parameters.First());
                 string OrderName = "";
                 if (i > 0)
                 {
@@ -419,31 +414,10 @@ namespace Data.Seedwork.EF.Repositories
                 }
                 else
                     OrderName = oc.OrderBy == OrderBy.Desc ? "OrderByDescending" : "OrderBy";
-                MethodCallExpression resultExp = Expression.Call(typeof(Queryable), OrderName, new Type[] { typeof(TEntity), property.PropertyType }, query.Expression, Expression.Quote(orderByExp));
+                MethodCallExpression resultExp = Expression.Call(typeof(Queryable), OrderName, new Type[] { typeof(TEntity), orderExp.ReturnType }, query.Expression, Expression.Quote(orderExp));
 
                 query = query.Provider.CreateQuery<TEntity>(resultExp);
-                //if (oc.OrderBy == OrderBy.Asc)
-                //{
-                //    if (ordered != null)
-                //    {
-                //        ordered = ordered.OrderBy(oc.Field);
-                //    }
-                //    else
-                //    {
-                //        IOrderedQueryable<TEntity> or = query.OrderBy(oc.Field);
-                //    }
-                //}
-                //else
-                //{
-                //    if (ordered != null)
-                //    {
-                //        ordered = ordered.OrderByDescending(oc.Field);
-                //    }
-                //    else
-                //    {
-                //        ordered = query.OrderByDescending(oc.Field);
-                //    }
-                //}
+                
             }
             var total = query.Count();
             var grouped = query.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
